@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .models import Room, Topic
 from .forms import RoomForm
@@ -8,6 +10,10 @@ from django.contrib.auth.models import User
 
 # loginUser
 def loginUser(request):
+  # redirect user to home page if is_authenticated 
+  if request.user.is_authenticated:
+    return redirect('home')
+  
   if request.method == 'POST':
     username = request.POST.get('username')
     password = request.POST.get('password')
@@ -55,8 +61,14 @@ def room(request, pk):
   return render(request, 'base/room.html', context)
 
 # createroom
+@login_required(login_url='login')
 def createroom(request):
   form = RoomForm()
+
+  # check if the loggedin user is the same user sending request
+  if request.user != room.host:
+    return HttpResponse("Your are not allowed here!!!")
+  
   if request.method == 'POST':
     form = RoomForm(request.POST)
     if form.is_valid():
@@ -67,10 +79,15 @@ def createroom(request):
   return render(request, 'base/room_form.html', context)
 
 # updateroom
+@login_required(login_url='login')
 def updateroom(request, pk):
   room = Room.objects.get(id=pk)
 
   form = RoomForm(instance=room)
+  
+  # check if the loggedin user is the same user sending request
+  if request.user != room.host:
+    return HttpResponse("Your are not allowed here!!!")
 
   if request.method == 'POST':
     form = RoomForm(request.POST, instance=room)
@@ -82,8 +99,13 @@ def updateroom(request, pk):
   return render(request, 'base/room_form.html', context)
 
 # deleteroom
+@login_required(login_url='login')
 def deleteroom(request, pk):
   room = Room.objects.get(id=pk)
+
+  # check if the loggedin user is the same user sending request
+  if request.user != room.host:
+    return HttpResponse("Your are not allowed here!!!")
 
   if request.method == 'POST':
     room.delete()
