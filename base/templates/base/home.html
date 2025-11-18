@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- <title>Home</title> -->
+</head>
+<body>
+  {% extends 'main.html' %}
+
+  {% block content %}
+    <h1>Home Page</h1>
+
+    <a href="{% url 'create-room' %}"> Create room</a>
+
+    <div>
+      {% for room in rooms %}
+      <div class="">
+        <a href="{% url 'update-room' room.id  %}"> Edit</a>
+        <a href="{% url 'delete-room' room.id  %}"> Delete</a>
+        <span>@{{ room.host.username }}</span>
+        <h5>{{ room.id }} -- <a href="{% url 'room' room.id %}">{{ room.name }}</a> -- {{ room.topic.name }}</h5>
+      </div>
+      {% endfor %}
+    </div>
+  {% endblock content %}
+</body>
+</html>
