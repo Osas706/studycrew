@@ -1,13 +1,19 @@
-<div class="bg-slate-100 px-2 py-3 flex items-center gap-5">
+<div class="bg-slate-100 p-5 md:px-10 py-3 flex items-center justify-between gap-5">
   <a href="/" class="text-xl font-semibold">
     StudyCrew
   </a>
 
   <form action="{% url 'home' %}" method="GET" class="flex items-center">
-    <input type="text" 
-      name="q" 
-      class="border border-gray-300 rounded-md px-3 mt-3 " 
-      placeholder="Search Room..."
-    />
+    <input type="text" name="q" class="border border-gray-300 rounded-md px-3 mt-3 " placeholder="Search Room..." />
   </form>
+
+  {% if request.user.is_authenticated %}
+  <a href="{% url 'logout' %}" class="text-lg font-medium">
+    Logout
+  </a>
+  {% else %}
+  <a href="{% url 'login' %}" class="text-lg font-medium">
+    login
+  </a>
+  {% endif %}
 </div>
