@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .models import Room, Topic
@@ -10,12 +11,14 @@ from django.contrib.auth.models import User
 
 # loginUser
 def loginUser(request):
+  page = 'login'
+
   # redirect user to home page if is_authenticated 
   if request.user.is_authenticated:
     return redirect('home')
   
   if request.method == 'POST':
-    username = request.POST.get('username')
+    username = request.POST.get('username').lower()
     password = request.POST.get('password')
 
     try:
@@ -32,13 +35,42 @@ def loginUser(request):
     else:
       messages.error(request, 'Username OR password does not exist')
 
-  context = {}
+  context = { 'page' : page}
   return render(request, 'base/auth.html', context)
 
 # logoutUser
 def logoutUser(request):
   logout(request)
   return redirect('home')
+
+# registerUser
+def registerUser(request):
+  page = 'register'
+  form = UserCreationForm()
+
+  if request.method == 'POST':
+    form = UserCreationForm(request.POST)
+
+    if form.is_valid():
+      username = form.cleaned_data['username'].lower()
+
+      # Check for existing user
+      if User.objects.filter(username=username).exists():
+        messages.error(request, "User already exists")
+        return render(request, 'base/auth.html', { 'form': form, 'page': page })
+
+      user = form.save(commit=False)
+      user.username = username
+      user.save()
+
+      login(request, user)
+      return redirect('home')
+    else:
+      messages.error(request, "An error occurred during registration")
+
+  context = { 'form': form, 'page' : page }
+  return render(request, 'base/auth.html', context)
+
 
 # home
 def home(request):
