@@ -9,7 +9,7 @@
 
   {% if request.user.is_authenticated %}
   <div class="flex items-center gap-2">
-    <p>Hello, {{ request.username }}</p>
+    <p>Hello, {{ request.user.username }}</p>
 
     <a href="{% url 'logout' %}" class="text-lg font-medium">
       Logout
