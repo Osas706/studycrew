@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import Room, Topic
+from .models import Room, Topic, Message
 from .forms import RoomForm
 from django.contrib.auth.models import User
 
@@ -71,7 +71,6 @@ def registerUser(request):
   context = { 'form': form, 'page' : page }
   return render(request, 'base/auth.html', context)
 
-
 # home
 def home(request):
   q = request.GET.get('q') if request.GET.get('q') != None else ''
@@ -88,8 +87,25 @@ def home(request):
 
 # room
 def room(request, pk):
-  rooms = Room.objects.get(id=pk)
-  context = {'rooms' : rooms}
+  room = Room.objects.get(id=pk)
+  room_messages = room.message_set.all().order_by('-created')
+  participants = room.participants.all()
+
+  if request.method == 'POST':
+    message = Message.objects.create(
+      user=request.user,
+      room=room,
+      body=request.POST.get('body'),
+    )
+
+    room.participants.add(request.user)
+    return redirect('room', pk=room.id)
+
+  context = {
+    'room' : room,
+    'room_messages' : room_messages,
+    'participants' : participants
+  }
   return render(request, 'base/room.html', context)
 
 # createroom
@@ -144,3 +160,18 @@ def deleteroom(request, pk):
     return redirect('home')
     
   return render(request, 'base/delete.html', {'obj': room})
+
+# deletemessage
+@login_required(login_url='login')
+def deletemessage(request, pk):
+  message = Message.objects.get(id=pk)
+
+  # check if the loggedin user is the same user sending request
+  if request.user != message.user:
+    return HttpResponse("Your are not allowed here!!!")
+
+  if request.method == 'POST':
+    message.delete()
+    return redirect('home')
+    
+  return render(request, 'base/delete.html', {'obj': message})
