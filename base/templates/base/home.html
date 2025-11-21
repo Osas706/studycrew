@@ -2,42 +2,26 @@
   {% extends 'main.html' %}
 
   {% block content %}
-  <div class="grid grid-cols-4 px-10">
-    <!-- sidebar -->
-    <div class="col-span-1">
-      <h3>Browse Topics</h3>
-      <hr>
-
-      <div class="">
-        <a href="{% url 'home' %}">All</a>
+    <div class="grid grid-cols-5 px-10">
+      <!-- sidebar -->
+      <div class="col-span-1">
+        {% include 'base/topic_comp.html' %}
       </div>
 
-      {% for topic in topics %}
-        <div class="">
-          <a href="{% url 'home' %}?q={{topic.name}}">{{topic.name}}</a>
-        </div>
-      {% endfor %}
-    </div>
+      <!-- main content -->
+      <div class="col-span-3">
+        <h5>{{room_count}} rooms available</h5>
+        <a href="{% url 'create-room' %}"> Create room</a>
 
-    <!-- main content -->
-    <div class="col-span-3">
-      <h5>{{room_count}} rooms available</h5>
-      <a href="{% url 'create-room' %}"> Create room</a>
-
-      <div>
-        {% for room in rooms %}
-        <div class="">
-            {% if request.user.is_authenticated %}
-          <a href="{% url 'update-room' room.id  %}"> Edit</a>
-          <a href="{% url 'delete-room' room.id  %}"> Delete</a>
-            {% endif %}
-          <span>@{{ room.host.username }}</span>
-          <h5>{{ room.id }} -- <a href="{% url 'room' room.id %}">{{ room.name }}</a> -- {{ room.topic.name }}</h5>
+        <div>
+          {% include 'base/feed_comp.html' %}
         </div>
-        {% endfor %}
+      </div>
+
+      <!-- Recent activity feed -->
+      <div class="col-span-1">
+        {% include 'base/activity_comp.html' %}
       </div>
     </div>
-
-  </div>
   {% endblock content %}
 </body>
