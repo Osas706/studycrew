@@ -2,10 +2,10 @@
   {% extends 'main.html' %}
 
   {% block content %}
-  <div class="">
-    <h1>{{user.username}}</h1>
+  <div class="px-10">
+    <h1 class="text-center text-2xl font-semibold my-5">{{user.username}}</h1>
 
-    <div class="grid grid-cols-5 px-10">
+    <div class="grid grid-cols-5">
       <!-- sidebar -->
       <div class="col-span-1">
         {% include 'base/topic_comp.html' %}
