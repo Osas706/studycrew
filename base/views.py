@@ -117,13 +117,16 @@ def createroom(request):
   form = RoomForm()
 
   # check if the loggedin user is the same user sending request
-  if request.user != room.host:
-    return HttpResponse("Your are not allowed here!!!")
+  # if request.user != room.user:
+  #  return HttpResponse("Your are not allowed here!!!")
   
   if request.method == 'POST':
     form = RoomForm(request.POST)
     if form.is_valid():
-      form.save()
+      room = form.save(commit=False)
+      room.host = request.user
+      room.save()
+      
       return redirect('home')
     
   context = {'form': form}
